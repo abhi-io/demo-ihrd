@@ -150,15 +150,7 @@ class LoginViewSet(CreateViewSet):
                 refresh_token=refresh_token,
                 defaults={"updated_at": timezone.now()},
             )
-            log_obj, updated_flag = LoginLog.objects.update_or_create(
-                user_id=user_obj,
-                defaults={
-                    "updated_at": timezone.now(),
-                    "last_logged_in": timezone.now(),
-                },
-            )
-            log_obj.login_count = log_obj.login_count + 1
-            log_obj.save()
+            
             return Response(
                 {
                     "code": 200,
@@ -249,7 +241,15 @@ class LogoutViewSet(CreateViewSet):
     permission_classes = ()
     authentication_classes = [JwtTokensAuthentication]
     serializer_class = EmptySerializer
-
+  log_obj, updated_flag = LoginLog.objects.update_or_create(
+                user_id=user_obj,
+                defaults={
+                    "updated_at": timezone.now(),
+                    "last_logged_in": timezone.now(),
+                },
+            )
+            log_obj.login_count = log_obj.login_count + 1
+            log_obj.save()
     def create(self, request, *args, **kwargs):
         user_id = request.user.get("user_id")
         token_id = request.headers.get("Authorization", "")
